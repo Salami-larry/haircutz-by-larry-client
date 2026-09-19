@@ -120,7 +120,7 @@ export default function HomePage() {
             <h1 className="font-display text-3xl font-semibold tracking-wide sm:text-4xl">
               Styles
             </h1>
-            <p className="mt-1 text-sm text-hbl-muted">Active catalogue only</p>
+            <p className="mt-1 text-sm text-hbl-muted">Walk-in and home service</p>
           </div>
           <Input.Search
             allowClear
@@ -138,7 +138,10 @@ export default function HomePage() {
             <Spin size="large" />
           </div>
         ) : error ? (
-          <p className="text-red-600">{error}</p>
+          <div className="space-y-3 py-8">
+            <p className="text-red-600">{error}</p>
+            <Button onClick={() => void loadFirst(query)}>Try again</Button>
+          </div>
         ) : items.length === 0 ? (
           <p className="py-12 text-hbl-muted">
             {query ? "No styles match that search." : "No styles yet — check back soon."}

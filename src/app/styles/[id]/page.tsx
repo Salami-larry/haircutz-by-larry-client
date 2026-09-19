@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Alert, Spin } from "antd";
+import { Alert, Button, Spin } from "antd";
 import { motion } from "framer-motion";
 
 import { BookStylePanel } from "@/components/book-style-panel";
@@ -54,7 +54,17 @@ export default function StyleDetailPage() {
           </div>
         ) : null}
         {error ? (
-          <Alert type="error" message={error} showIcon className="mt-8" />
+          <div className="mt-8 space-y-3">
+            <Alert type="error" message={error} showIcon />
+            <Button type="primary" onClick={() => void load()}>
+              Try again
+            </Button>
+            <div>
+              <Link href="/#styles" className="text-sm underline">
+                Back to styles
+              </Link>
+            </div>
+          </div>
         ) : null}
 
         {style ? (

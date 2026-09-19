@@ -112,7 +112,13 @@ function TrackPageInner() {
     } catch (e) {
       setResult(null);
       setCreds(null);
-      message.error(e instanceof ApiError ? e.message : "Appointment not found");
+      const msg =
+        e instanceof ApiError && e.status === 404
+          ? "No appointment matches that tracking number and email."
+          : e instanceof ApiError
+            ? e.message
+            : "Appointment not found";
+      message.error(msg);
     } finally {
       setLoading(false);
     }
