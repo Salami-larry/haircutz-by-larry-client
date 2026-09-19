@@ -47,6 +47,7 @@ export function BookStylePanel({ style }: Props) {
   const [slots, setSlots] = useState<string[]>([]);
   const [closed, setClosed] = useState(false);
   const [slotLoading, setSlotLoading] = useState(false);
+  const [refreshingSlots, setRefreshingSlots] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [slotError, setSlotError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -56,9 +57,10 @@ export function BookStylePanel({ style }: Props) {
   const priceKobo =
     serviceType === "home_service" ? style.homeServicePriceKobo : style.walkInPriceKobo;
 
-  const loadSlots = useCallback(async () => {
+  const loadSlots = useCallback(async (opts?: { softRefresh?: boolean }) => {
     if (!date) return;
     setSlotLoading(true);
+    if (opts?.softRefresh) setRefreshingSlots(true);
     setSlotError(null);
     setSelectedSlot(null);
     try {
@@ -75,6 +77,7 @@ export function BookStylePanel({ style }: Props) {
       setSlotError(e instanceof ApiError ? e.message : "Could not load slots");
     } finally {
       setSlotLoading(false);
+      setRefreshingSlots(false);
     }
   }, [date, serviceType, style.id]);
 
@@ -87,6 +90,17 @@ export function BookStylePanel({ style }: Props) {
     if (!slotLoading && slots.length === 0) return "No open slots — try another day.";
     return null;
   }, [closed, slotLoading, slots.length]);
+
+  function isStaleSlotError(e: unknown): boolean {
+    if (!(e instanceof ApiError)) return false;
+    if (e.code === "slot_unavailable" || e.code === "invalid_start_time") return true;
+    const msg = e.message.toLowerCase();
+    return (
+      msg.includes("just taken") ||
+      msg.includes("not an available slot") ||
+      e.status === 409
+    );
+  }
 
   async function onFinish(values: BookForm) {
     if (!selectedSlot) {
@@ -125,7 +139,16 @@ export function BookStylePanel({ style }: Props) {
         },
       });
     } catch (e) {
-      message.error(e instanceof Error ? e.message : "Booking failed");
+      if (isStaleSlotError(e)) {
+        message.warning(
+          e instanceof Error
+            ? `${e.message} Refreshing availability`
+            : "That slot is no longer available. Refreshing availability...",
+        );
+        await loadSlots({ softRefresh: true });
+      } else {
+        message.error(e instanceof Error ? e.message : "Booking failed");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -192,8 +215,11 @@ export function BookStylePanel({ style }: Props) {
           Time
         </p>
         {slotLoading ? (
-          <div className="flex justify-center py-6">
+          <div className="flex flex-col items-center gap-2 py-6">
             <Spin />
+            {refreshingSlots ? (
+              <p className="text-sm text-hbl-muted">Refreshing availability...</p>
+            ) : null}
           </div>
         ) : null}
         {slotError ? <Alert type="error" message={slotError} showIcon className="mb-3" /> : null}

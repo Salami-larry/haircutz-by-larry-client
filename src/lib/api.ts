@@ -14,24 +14,31 @@ function baseURL(): string {
   return base.replace(/\/$/, "");
 }
 
-async function parseError(res: Response): Promise<string> {
+async function parseErrorBody(res: Response): Promise<{ message: string; code?: string }> {
   try {
-    const data = (await res.json()) as { error?: string };
-    if (data.error) return data.error;
+    const data = (await res.json()) as { error?: string; code?: string };
+    if (data.error) {
+      return { message: data.error, code: data.code };
+    }
   } catch {
     // ignore
   }
-  return res.statusText || "Request failed";
+  return { message: res.statusText || "Request failed" };
 }
 
 export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
+    public code?: string,
   ) {
     super(message);
     this.name = "ApiError";
   }
+}
+
+function throwApiError(res: Response, body: { message: string; code?: string }): never {
+  throw new ApiError(body.message, res.status, body.code);
 }
 
 export type VerifyPaymentResult = {
@@ -55,13 +62,13 @@ export async function listHairstyles(params?: {
   const res = await fetch(`${baseURL()}/api/v1/hairstyles${qs ? `?${qs}` : ""}`, {
     cache: "no-store",
   });
-  if (!res.ok) throw new ApiError(await parseError(res), res.status);
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
   return (await res.json()) as Paginated<Hairstyle>;
 }
 
 export async function getHairstyle(id: string): Promise<Hairstyle> {
   const res = await fetch(`${baseURL()}/api/v1/hairstyles/${id}`, { cache: "no-store" });
-  if (!res.ok) throw new ApiError(await parseError(res), res.status);
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
   return (await res.json()) as Hairstyle;
 }
 
@@ -76,7 +83,7 @@ export async function getAvailability(params: {
     serviceType: params.serviceType,
   });
   const res = await fetch(`${baseURL()}/api/v1/availability?${search}`, { cache: "no-store" });
-  if (!res.ok) throw new ApiError(await parseError(res), res.status);
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
   return (await res.json()) as AvailabilityResult;
 }
 
@@ -97,7 +104,7 @@ export async function createAppointment(body: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  if (!res.ok) throw new ApiError(await parseError(res), res.status);
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
   return (await res.json()) as Appointment;
 }
 
@@ -109,7 +116,7 @@ export async function initializePayment(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ appointmentId }),
   });
-  if (!res.ok) throw new ApiError(await parseError(res), res.status);
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
   return (await res.json()) as {
     accessCode: string;
     reference: string;
@@ -123,7 +130,7 @@ export async function abandonPayment(reference: string, email: string): Promise<
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ reference, email }),
   });
-  if (!res.ok) throw new ApiError(await parseError(res), res.status);
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
 }
 
 export async function verifyPayment(reference: string): Promise<VerifyPaymentResult> {
@@ -131,6 +138,6 @@ export async function verifyPayment(reference: string): Promise<VerifyPaymentRes
     `${baseURL()}/api/v1/payments/verify?reference=${encodeURIComponent(reference)}`,
     { cache: "no-store" },
   );
-  if (!res.ok) throw new ApiError(await parseError(res), res.status);
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
   return (await res.json()) as VerifyPaymentResult;
 }
