@@ -50,3 +50,24 @@ export type Appointment = {
     notes?: string;
   };
 };
+
+export type TrackResult = {
+  id: string;
+  trackingNumber: string;
+  status: string;
+  statusHistory: { status: string; at: string; note?: string }[];
+  serviceType: ServiceType;
+  startAt: string;
+  endAt: string;
+  totalAmountKobo: number;
+  hairstyle: {
+    hairstyleId: string;
+    name: string;
+    durationMinutes: number;
+    walkInPriceKobo: number;
+    homeServicePriceKobo: number;
+    imageUrl?: string;
+  };
+  customerName: string;
+  canReschedule: boolean;
+};

@@ -16,6 +16,14 @@ export function formatSlotTime(iso: string): string {
   }).format(new Date(iso));
 }
 
+export function formatDateTime(iso: string): string {
+  return new Intl.DateTimeFormat("en-NG", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Africa/Lagos",
+  }).format(new Date(iso));
+}
+
 export function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes} min`;
   const h = Math.floor(minutes / 60);

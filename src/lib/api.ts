@@ -4,9 +4,10 @@ import type {
   Hairstyle,
   Paginated,
   ServiceType,
+  TrackResult,
 } from "./types";
 
-export type { Appointment, AvailabilityResult, Hairstyle, Paginated, ServiceType };
+export type { Appointment, AvailabilityResult, Hairstyle, Paginated, ServiceType, TrackResult };
 
 function baseURL(): string {
   const base = process.env.NEXT_PUBLIC_API_URL;
@@ -140,4 +141,36 @@ export async function verifyPayment(reference: string): Promise<VerifyPaymentRes
   );
   if (!res.ok) throwApiError(res, await parseErrorBody(res));
   return (await res.json()) as VerifyPaymentResult;
+}
+
+export async function trackAppointment(body: {
+  trackingNumber: string;
+  email: string;
+}): Promise<TrackResult> {
+  const res = await fetch(`${baseURL()}/api/v1/appointments/track`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
+  return (await res.json()) as TrackResult;
+}
+
+export async function rescheduleAppointment(body: {
+  appointmentId: string;
+  trackingNumber: string;
+  email: string;
+  startAt: string;
+}): Promise<Appointment> {
+  const res = await fetch(`${baseURL()}/api/v1/appointments/${body.appointmentId}/reschedule`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      trackingNumber: body.trackingNumber,
+      email: body.email,
+      startAt: body.startAt,
+    }),
+  });
+  if (!res.ok) throwApiError(res, await parseErrorBody(res));
+  return (await res.json()) as Appointment;
 }
