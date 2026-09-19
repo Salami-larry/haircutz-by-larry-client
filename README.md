@@ -14,7 +14,15 @@ Create `.env.local` in this folder (never commit it):
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `NEXT_PUBLIC_API_URL` | yes | API base URL (default `http://localhost:8080`) |
-| `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` | Phase 4+ | Paystack public key |
+| `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` | Phase 5 booking | Paystack public key |
+
+## Pages
+
+- `/` — catalogue + search
+- `/styles/[id]` — gallery, slots, Paystack book
+- `/contact`, `/terms`
+- `/book/success` — payment verify
+- `/track` — Phase 7
 
 ## Run locally
 

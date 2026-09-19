@@ -35,7 +35,7 @@ export function SiteHeader({ active }: Props) {
           <BrandMark size="sm" />
         </Link>
         <nav className="flex items-center gap-1 sm:gap-2">
-          <Link href="/" className={navLinkClass("home")}>
+          <Link href="/#styles" className={navLinkClass("home")}>
             Styles
           </Link>
           <Link href="/track" className={navLinkClass("track")}>
@@ -43,6 +43,9 @@ export function SiteHeader({ active }: Props) {
           </Link>
           <Link href="/contact" className={navLinkClass("contact")}>
             Contact
+          </Link>
+          <Link href="/terms" className={`${navLinkClass("terms")} hidden sm:inline-flex`}>
+            Terms
           </Link>
         </nav>
       </div>

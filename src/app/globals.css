@@ -61,6 +61,10 @@ header[data-site-header] a.site-header-logo:hover {
   color: var(--site-header-fg) !important;
 }
 
-header[data-site-header] a.site-header-interactive:hover {
+<header[data-site-header] a.site-header-interactive:hover {
   background-color: var(--site-header-hover-bg) !important;
+}
+
+.font-display {
+  font-family: var(--font-display);
 }
