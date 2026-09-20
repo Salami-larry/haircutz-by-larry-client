@@ -82,7 +82,7 @@ export default function ContactPage() {
               href={contactLinks.whatsapp}
               external
             >
-              Chat on WhatsApp
+              {contact.whatsappDisplay}
             </ContactRow>
             <ContactRow
               icon={<InstagramOutlined style={{ fontSize: 18 }} />}

@@ -27,6 +27,7 @@ import {
   trackAppointment,
   type TrackResult,
 } from "@/lib/api";
+import { contactLinks } from "@/lib/contact";
 import { formatDateTime, formatDuration, formatKobo, formatSlotTime } from "@/lib/format";
 
 function statusColor(status: string): string {
@@ -231,6 +232,27 @@ function TrackPageInner() {
               action={
                 <Button size="small" type="primary" onClick={() => setRescheduleOpen((v) => !v)}>
                   {rescheduleOpen ? "Hide" : "Reschedule"}
+                </Button>
+              }
+            />
+          ) : null}
+
+          {result.status === "completed" ? (
+            <Alert
+              className="mt-4"
+              type="success"
+              showIcon
+              message="Thanks for visiting"
+              description="If you enjoyed your cut, a quick Google review helps other clients find us."
+              action={
+                <Button
+                  size="small"
+                  type="primary"
+                  href={contactLinks.googleReview}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Leave a review
                 </Button>
               }
             />
